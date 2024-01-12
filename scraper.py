@@ -1,11 +1,19 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 
 def extract_statement(soup):
     # Find the statement text
     statement_tag = soup.find('div', class_='m-statement__quote')
     return statement_tag.get_text(strip=True) if statement_tag else "No statement found."
+
+def extract_subject(soup):
+    # Find the meta tag with name="keywords"
+    subject_tag = soup.find('meta', {'name': 'keywords'})
+
+    # Extract the content attribute value
+    subject_content = subject_tag.get('content') if subject_tag else "No subjects found."
+    
+    return subject_content
 
 def extract_information(url):
     # Send a GET request to the specified URL
@@ -38,7 +46,10 @@ def extract_information(url):
                 # Extract the statement using the separate method
                 statement = extract_statement(soup)
 
-                return image_tag, href_value, name, statement
+                # Extract the keywords using the separate method
+                subjects = extract_subject(soup)
+
+                return image_tag, href_value, name, statement, subjects
             else:
                 print("No matching <a> tag found with the class 'm-statement__name'.")
         else:
@@ -47,14 +58,15 @@ def extract_information(url):
         print(f"Failed to retrieve content. Status code: {response.status_code}")
 
 # Example usage:
-url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/11/nikki-haley/the-missing-facts-from-nikki-haleys-claim-about-bo/"
+url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/glenn-grothman/grothman-falsely-claims-birthright-citizenship-doe/"
 result = extract_information(url_to_scrape)
 
 if result:
-    image_tag, href_value, name, statement = result
+    image_tag, href_value, name, statement, subjects = result
     print(f"Extracted image alt: {image_tag}")
     print(f"Extracted href value: {href_value}")
     print(f"Extracted name: {name}")
     print(f"Extracted statement: {statement}")
+    print(f"Extracted subject/s: {subjects}")
 else:
     print("Failed to extract information.")
