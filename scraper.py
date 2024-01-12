@@ -33,15 +33,15 @@ def extract_information(url):
             image_tag = parent_element.find('img', class_='c-image__original').get('alt')
 
             # Find the <a> tag with the class 'm-statement__name'
-            name_tag = soup.find('a', class_='m-statement__name')
+            speaker_tag = soup.find('a', class_='m-statement__name')
 
             # Check if the name tag is found
-            if name_tag:
+            if speaker_tag:
                 # Extract the name text
-                name = name_tag.get_text(strip=True)
+                speaker = speaker_tag.get_text(strip=True)
 
                 # Extract the 'href' attribute value
-                href_value = name_tag.get('href')
+                href_value = speaker_tag.get('href')
 
                 # Extract the statement using the separate method
                 statement = extract_statement(soup)
@@ -49,7 +49,7 @@ def extract_information(url):
                 # Extract the keywords using the separate method
                 subjects = extract_subject(soup)
 
-                return image_tag, href_value, name, statement, subjects
+                return image_tag, href_value, speaker, statement, subjects
             else:
                 print("No matching <a> tag found with the class 'm-statement__name'.")
         else:
@@ -62,10 +62,10 @@ url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/glenn-grothma
 result = extract_information(url_to_scrape)
 
 if result:
-    image_tag, href_value, name, statement, subjects = result
+    image_tag, href_value, speaker, statement, subjects = result
     print(f"Extracted image alt: {image_tag}")
     print(f"Extracted href value: {href_value}")
-    print(f"Extracted name: {name}")
+    print(f"Extracted name: {speaker}")
     print(f"Extracted statement: {statement}")
     print(f"Extracted subject/s: {subjects}")
 else:
