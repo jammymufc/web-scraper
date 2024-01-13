@@ -93,9 +93,9 @@ result = extract_information(url_to_scrape)
 
 if result:
     image_tag, href_value, speaker, statement, subjects, text_states = result
-    print(f"Extracted image alt: {image_tag}")
+    print(f"Extracted label: {image_tag}")
     print(f"Extracted href value: {href_value}")
-    print(f"Extracted name: {speaker}")
+    print(f"Extracted speaker: {speaker}")
     print(f"Extracted statement: {statement}")
     print(f"Extracted subject/s: {subjects}")
     print(f"Extracted states: {text_states}")
