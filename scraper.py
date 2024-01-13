@@ -1,6 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 
+def extract_context(soup):
+    # Find the context element
+    context_tag = soup.find('div', class_='m-statement__desc')
+
+    # Extract the context text
+    context_text = context_tag.get_text(strip=True) if context_tag else "No context found."
+
+    return context_text
+
 def extract_states_from_text(article_text, state_editions):
     # List of US states
     us_states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida",
@@ -22,6 +31,20 @@ def extract_states_from_text(article_text, state_editions):
                 text_states.remove(state_name)
 
     return text_states
+
+def count_occurrences(text, keywords):
+    # Count occurrences of each keyword in the text
+    occurrences = {keyword: text.lower().count(keyword) for keyword in keywords}
+    return occurrences
+
+def determine_party_affiliation(occurrences):
+    # Determine party affiliation based on occurrences
+    if occurrences['democrat'] > occurrences['republican']:
+        return 'party_affiliation: democrat'
+    elif occurrences['republican'] > occurrences['democrat']:
+        return 'party_affiliation: republican'
+    else:
+        return 'party_affiliation: unknown'
 
 def extract_statement(soup):
     # Find the statement text
@@ -46,58 +69,78 @@ def extract_information(url):
         # Parse the HTML content using BeautifulSoup
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Find the parent element of the <img> tag
-        parent_element = soup.find('div', class_='m-statement__meter')
+        # Find the main content area (you may need to adjust this selector)
+        main_content = soup.find('main')
 
-        # Check if the parent element is found
-        if parent_element:
-            # Find the text associated with the image
-            image_tag = parent_element.find('img', class_='c-image__original').get('alt')
+        # Check if the main content is found
+        if main_content:
+            # Find the parent element of the <img> tag within the main content
+            parent_element = main_content.find('div', class_='m-statement__meter')
 
-            # Find the <a> tag with the class 'm-statement__name'
-            speaker_tag = soup.find('a', class_='m-statement__name')
+            # Check if the parent element is found
+            if parent_element:
+                # Find the text associated with the image
+                image_tag = parent_element.find('img', class_='c-image__original').get('alt')
 
-            # Check if the name tag is found
-            if speaker_tag:
-                # Extract the name text
-                speaker = speaker_tag.get_text(strip=True)
+                # Find the <a> tag with the class 'm-statement__name'
+                speaker_tag = soup.find('a', class_='m-statement__name')
 
-                # Extract the 'href' attribute value
-                href_value = speaker_tag.get('href')
+                # Check if the name tag is found
+                if speaker_tag:
+                    # Extract the name text
+                    speaker = speaker_tag.get_text(strip=True)
 
-                # Extract the statement using the separate method
-                statement = extract_statement(soup)
+                    # Extract the 'href' attribute value
+                    href_value = speaker_tag.get('href')
 
-                # Extract the keywords using the separate method
-                subjects = extract_subject(soup)
-                
-                # Extract state information
-                article_text = ' '.join([p.get_text(strip=True) for p in soup.find_all('p')])
-                
-                # Extract state editions
-                state_editions = soup.select('div.m-togglist__panel a')
+                    # Extract the statement using the separate method
+                    statement = extract_statement(soup)
 
-                text_states = extract_states_from_text(article_text, state_editions)
+                    # Extract the keywords using the separate method
+                    subjects = extract_subject(soup)
 
-                return image_tag, href_value, speaker, statement, subjects, text_states
+                    # Extract state information
+                    article_text = ' '.join([p.get_text(strip=True) for p in main_content.find_all('p')])
+
+                    # Extract state editions
+                    state_editions = main_content.select('div.m-togglist__panel a')
+
+                    text_states = extract_states_from_text(article_text, state_editions)
+
+                    # Count occurrences of 'democrat' and 'republican'
+                    keywords = ['democrat', 'republican']
+                    occurrences = count_occurrences(article_text, keywords)
+
+                    # Determine party affiliation
+                    party_affiliation = determine_party_affiliation(occurrences)
+                    
+                    # Extract context information using the new function
+                    context = extract_context(soup)
+
+                    return image_tag, href_value, speaker, statement, subjects, text_states, occurrences, party_affiliation, context
+                else:
+                    print("No matching <a> tag found with the class 'm-statement__name'.")
             else:
-                print("No matching <a> tag found with the class 'm-statement__name'.")
+                print("No matching parent element found within the main content.")
         else:
-            print("No matching parent element found on the page.")
+            print("No main content found on the page.")
     else:
         print(f"Failed to retrieve content. Status code: {response.status_code}")
 
 # Example usage:
-url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/11/ron-desantis/debate-fact-check-ron-desantis-misleading-claim-th/"
+url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/05/donald-trump/donald-trump-ad-wrongly-describes-nikki-haleys-pos/"
 result = extract_information(url_to_scrape)
 
 if result:
-    image_tag, href_value, speaker, statement, subjects, text_states = result
+    image_tag, href_value, speaker, statement, subjects, text_states, occurrences, party_affiliation, context = result
     print(f"Extracted label: {image_tag}")
     print(f"Extracted href value: {href_value}")
     print(f"Extracted speaker: {speaker}")
     print(f"Extracted statement: {statement}")
     print(f"Extracted subject/s: {subjects}")
     print(f"Extracted states: {text_states}")
+    print(f"Occurrences of 'democrat' and 'republican': {occurrences}")
+    print(party_affiliation)
+    print(f"Extracted context: {context}")
 else:
     print("Failed to extract information.")
