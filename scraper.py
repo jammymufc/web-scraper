@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import json
+
 
 def extract_context(soup):
     # Find the context element
@@ -127,20 +129,36 @@ def extract_information(url):
     else:
         print(f"Failed to retrieve content. Status code: {response.status_code}")
 
+
+# Load the JSON data
+with open('people_details.json', 'r') as json_file:
+    people_details = json.load(json_file)
+
 # Example usage:
-url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/05/donald-trump/donald-trump-ad-wrongly-describes-nikki-haleys-pos/"
+url_to_scrape = "https://www.politifact.com/factchecks/2016/jul/01/aclu-north-carolina/aclu-north-carolina-police-will-have-significant-p/"
 result = extract_information(url_to_scrape)
 
 if result:
-    image_tag, href_value, speaker, statement, subjects, text_states, occurrences, party_affiliation, context = result
-    print(f"Extracted label: {image_tag}")
-    print(f"Extracted href value: {href_value}")
-    print(f"Extracted speaker: {speaker}")
-    print(f"Extracted statement: {statement}")
-    print(f"Extracted subject/s: {subjects}")
-    print(f"Extracted states: {text_states}")
-    print(f"Occurrences of 'democrat' and 'republican': {occurrences}")
-    print(party_affiliation)
-    print(f"Extracted context: {context}")
+    image_tag, href_value, speaker, statement, subjects, text_states, occurrences, _, context = result
+
+    # Find the speaker in the JSON data
+    speaker_info = None
+    for person in people_details:
+        if person["name"] == speaker:
+            speaker_info = person
+            break
+
+    if speaker_info:
+        party_affiliation = speaker_info.get('party_affiliation', 'Party affiliation not found.')
+        print(f"Extracted label: {image_tag}")
+        print(f"Extracted href value: {href_value}")
+        print(f"Extracted speaker: {speaker}")
+        print(f"Extracted statement: {statement}")
+        print(f"Extracted subject/s: {subjects}")
+        print(f"Extracted states: {text_states}")
+        print(f"Party Affiliation: {party_affiliation}")
+        print(f"Extracted context: {context}")
+    else:
+        print(f"Speaker '{speaker}' not found in the JSON data.")
 else:
     print("Failed to extract information.")

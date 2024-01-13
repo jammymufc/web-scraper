@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-def scrape_people_names(url):
+def scrape_people_details(url):
     try:
         response = requests.get(url)
         response.raise_for_status()  # Raise HTTPError for bad responses
@@ -10,17 +10,30 @@ def scrape_people_names(url):
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Find all <a> tags with class 'c-chyron__value' within <div> tags with class 'c-chyron'
-        chyron_values = soup.select('div.c-chyron__value a')
+        # Find all <div> tags with class 'c-chyron__value' that are within an <a> tag
+        name_as = soup.select('div.c-chyron__value a')
 
-        people_names = []
+        # Find all <div> tags with class 'c-chyron__subline'
+        party_affiliation_divs = soup.select('div.c-chyron__subline')
 
-        for chyron_value in chyron_values:
-            name = chyron_value.get_text(strip=True)
-            people_names.append(name)
-            print(f"Scraped Name: {name}")
+        people_details = []
 
-        return people_names
+        for name_a, party_affiliation_div in zip(name_as, party_affiliation_divs):
+            # Extract name
+            name = name_a.get_text(strip=True)
+
+            # Extract party affiliation
+            party_affiliation = party_affiliation_div.get_text(strip=True) if party_affiliation_div else "None"
+
+            person_details = {
+                'name': name,
+                'party_affiliation': party_affiliation
+            }
+
+            people_details.append(person_details)
+            print(f"Scraped Details: {person_details}")
+
+        return people_details
 
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
@@ -28,12 +41,12 @@ def scrape_people_names(url):
 
 if __name__ == "__main__":
     url_to_scrape = "https://www.politifact.com/personalities/"
-    output_file_path = "people_names.json"
+    output_file_path = "people_details.json"
 
-    names = scrape_people_names(url_to_scrape)
-    if names:
+    details = scrape_people_details(url_to_scrape)
+    if details:
         with open(output_file_path, 'w') as json_file:
-            json.dump(names, json_file, indent=2)
-        print(f"Names exported to {output_file_path}")
+            json.dump(details, json_file, indent=2)
+        print(f"Details exported to {output_file_path}")
     else:
-        print("Failed to scrape names.")
+        print("Failed to scrape details.")
