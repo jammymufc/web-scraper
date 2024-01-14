@@ -106,14 +106,42 @@ def scrape_person_statements(person_url):
         print(f"Request failed for {person_url}: {e}")
         return None
 
-if __name__ == "__main__":
-    url_to_scrape = "https://www.politifact.com/personalities/"
-    output_file_path = "new_people_details.json"
+def load_existing_data(file_path):
+    try:
+        with open(file_path, 'r') as json_file:
+            existing_data = json.load(json_file)
+        return existing_data
+    except FileNotFoundError:
+        return {'people': {}}
 
-    details = scrape_people_details(url_to_scrape)
-    if details:
-        with open(output_file_path, 'w') as json_file:
-            json.dump(details, json_file, indent=2)
-        print(f"Details exported to {output_file_path}")
-    else:
-        print("Failed to scrape details.")
+def save_data(file_path, data):
+    with open(file_path, 'w') as json_file:
+        json.dump(data, json_file, indent=2)
+
+def scrape_and_update_data(person_url, existing_data):
+    # Scraping logic here to get the latest data
+    new_data = scrape_person_statements(person_url)
+
+    # Check for changes and update existing data
+    if 'statements' in new_data:
+        person_name = new_data['name']
+        existing_data['people'][person_name] = existing_data['people'].get(person_name, {})
+        existing_statements = existing_data['people'][person_name].get('statements', [])
+        new_statements = new_data['statements']
+
+        # Compare the new statements with existing ones
+        for new_statement in new_statements:
+            if new_statement not in existing_statements:
+                existing_statements.append(new_statement)
+
+        existing_data['people'][person_name]['statements'] = existing_statements
+
+        # Save the updated data
+        save_data('data.json', existing_data)
+
+if __name__ == "__main__":
+    test_person_url = "https://www.politifact.com/personalities/eric-adams/"
+    existing_data = load_existing_data('new_people_details.json')
+
+    # Scrape and update data
+    scrape_and_update_data(test_person_url, existing_data)

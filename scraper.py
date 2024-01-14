@@ -135,7 +135,7 @@ with open('people_details.json', 'r') as json_file:
     people_details = json.load(json_file)
 
 # Example usage:
-url_to_scrape = "https://www.politifact.com/factchecks/2016/jul/01/aclu-north-carolina/aclu-north-carolina-police-will-have-significant-p/"
+url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/donald-trump/trumps-claim-that-millions-of-immigrants-are-signi/"
 result = extract_information(url_to_scrape)
 
 if result:
