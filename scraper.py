@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+from pymongo import MongoClient
+from bson import ObjectId
 
 
 def extract_context(soup):
@@ -119,7 +121,22 @@ def extract_information(url):
                     # Extract context information using the new function
                     context = extract_context(soup)
 
-                    return image_tag, href_value, speaker, statement, subjects, text_states, occurrences, party_affiliation, context
+                    # Create a dictionary with the extracted information
+                    extracted_info = {
+                        "_id": ObjectId(),
+                        "id": href_value.split('/')[-2],  # Extracting the ID from the URL
+                        "label": image_tag,
+                        "statement": statement,
+                        "subject": subjects,
+                        "speaker": speaker,
+                        "party_affiliation": party_affiliation,
+                        "text_states": text_states,
+                        "occurrences": occurrences,
+                        "context": context,
+                        # Add other fields as needed
+                    }
+
+                    return extracted_info
                 else:
                     print("No matching <a> tag found with the class 'm-statement__name'.")
             else:
@@ -131,34 +148,25 @@ def extract_information(url):
 
 
 # Load the JSON data
-with open('people_details.json', 'r') as json_file:
-    people_details = json.load(json_file)
+#with open('people_details.json', 'r') as json_file:
+    #people_details = json.load(json_file)
 
 # Example usage:
 url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/donald-trump/trumps-claim-that-millions-of-immigrants-are-signi/"
 result = extract_information(url_to_scrape)
 
 if result:
-    image_tag, href_value, speaker, statement, subjects, text_states, occurrences, _, context = result
+    # Initialize a MongoDB client
+    client = MongoClient("mongodb://localhost:27017/")
+    
+    # Access your database and collection
+    db = client["clickRepellent"]
+    collection = db["valid"]
 
-    # Find the speaker in the JSON data
-    speaker_info = None
-    for person in people_details:
-        if person["name"] == speaker:
-            speaker_info = person
-            break
+    # Insert the extracted information into the MongoDB collection
+    collection.insert_one(result)
 
-    if speaker_info:
-        party_affiliation = speaker_info.get('party_affiliation', 'Party affiliation not found.')
-        print(f"Extracted label: {image_tag}")
-        print(f"Extracted href value: {href_value}")
-        print(f"Extracted speaker: {speaker}")
-        print(f"Extracted statement: {statement}")
-        print(f"Extracted subject/s: {subjects}")
-        print(f"Extracted states: {text_states}")
-        print(f"Party Affiliation: {party_affiliation}")
-        print(f"Extracted context: {context}")
-    else:
-        print(f"Speaker '{speaker}' not found in the JSON data.")
+    # Close the MongoDB client
+    client.close()
 else:
     print("Failed to extract information.")

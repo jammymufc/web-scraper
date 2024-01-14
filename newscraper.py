@@ -83,7 +83,7 @@ def scrape_person_statements(person_url):
 
 if __name__ == "__main__":
     url_to_scrape = "https://www.politifact.com/personalities/"
-    output_file_path = "new_people_details.json"
+    output_file_path = "test_details.json"
 
     details = scrape_people_details(url_to_scrape)
     if details:
