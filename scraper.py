@@ -5,6 +5,11 @@ from pymongo import MongoClient
 from bson import ObjectId
 import unicodedata
 
+def is_article_in_db(collection, statement_text):
+    # Check if the article with the given statement text is already in the database
+    existing_article = collection.find_one({"statement": statement_text})
+    return existing_article is not None
+
 def extract_context(soup):
     # Find the context element
     context_tag = soup.find('div', class_='m-statement__desc')
@@ -171,11 +176,16 @@ if result:
     db = client["clickRepellent"]
     collection = db["valid"]
 
-    # Insert the extracted information into the MongoDB collection
-    collection.insert_one(result)
+    # Check if the article is already in the database
+    if is_article_in_db(collection, result["statement"]):
+        print("Article already exists in the database. Skipping extraction.")
+    else:
+        # Extract information only if the article is not in the database
+        result = extract_information(url_to_scrape, people_details)
 
-    # Close the MongoDB client
-    client.close()
-    print("Record added succesfully.")
-else:
-    print("Failed to extract information.")
+        if result:
+            # Insert the extracted information into the MongoDB collection
+            collection.insert_one(result)
+            print("Record added successfully.")
+        else:
+            print("Failed to extract information.")
