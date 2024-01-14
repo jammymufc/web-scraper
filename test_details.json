@@ -1,0 +1,82 @@
+{
+  "statements": [
+    {
+      "text": "\u201cThe racial wealth gap is the smallest it\u2019s been in 20 years.\u201d",
+      "url": "https://www.politifact.com/factchecks/2024/jan/12/joe-biden/what-president-joe-biden-got-right-and-what-he-mis/"
+    },
+    {
+      "text": "\u201cWe\u2019ve created close to 800,000 manufacturing jobs since I\u2019ve taken office.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/dec/13/joe-biden/fact-checking-joe-biden-on-manufacturing-jobs/"
+    },
+    {
+      "text": "Republicans\u2019 \u201cplan would cut Social Security benefits. \u2026 Average benefit cut would be 13%.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/nov/29/joe-biden/is-joe-biden-right-that-republicans-would-cut-soci/"
+    },
+    {
+      "text": "\u201cLast year alone, natural disasters in America caused $178 billion in damages.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/nov/15/joe-biden/fact-checking-joe-biden-on-us-disaster-costs/"
+    },
+    {
+      "text": "\"Over the past four decades, we\u2019ve lost over 400,000 farms in America (and) over 140 million acres of farmland. And that\u2019s an area roughly equal to the size of Minnesota, North and South Dakota combined.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/nov/07/joe-biden/did-americans-lose-the-farm-fact-checking-joe-bide/"
+    },
+    {
+      "text": "\u201cThey want to make our Army tanks all electric.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/dec/21/donald-trump/trump-said-the-biden-administration-wants-to-make/"
+    },
+    {
+      "text": "\"Massive f\u2014 Joe Biden chant breaks out at Army/Navy game.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/dec/11/instagram-posts/army-navy-football-crowd-didnt-chant-anti-joe-bide/"
+    },
+    {
+      "text": "Video shows President Joe Biden falling \u201con the plane stairs shortly after landing in Poland.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/nov/17/viral-image/video-doesnt-show-president-joe-biden-falling-down/"
+    },
+    {
+      "text": "Video shows first lady Jill Biden calling President Joe Biden \u201cthe world's biggest cheerleader for the atrocities happening now in Gaza.\"",
+      "url": "https://www.politifact.com/factchecks/2023/nov/15/viral-image/no-the-first-lady-didnt-say-president-joe-biden-is/"
+    },
+    {
+      "text": "\u201cJust like the Cuban regime, the Biden administration is trying to put their political opponents in jail, shutting down free speech.\u201d",
+      "url": "https://www.politifact.com/factchecks/2023/nov/15/donald-trump/the-criminal-prosecutions-against-trump-are-not-ju/"
+    }
+  ],
+  "scorecards": [
+    {
+      "title": "True",
+      "value": "8",
+      "checks": "25 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=true&speaker=joe-biden"
+    },
+    {
+      "title": "Mostly True",
+      "value": "24",
+      "checks": "70 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=mostly-true&speaker=joe-biden"
+    },
+    {
+      "title": "Half True",
+      "value": "24",
+      "checks": "69 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=half-true&speaker=joe-biden"
+    },
+    {
+      "title": "Mostly False",
+      "value": "19",
+      "checks": "55 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=barely-true&speaker=joe-biden"
+    },
+    {
+      "title": "False",
+      "value": "20",
+      "checks": "58 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=false&speaker=joe-biden"
+    },
+    {
+      "title": "Pants on Fire",
+      "value": "2",
+      "checks": "7 Checks",
+      "url": "https://www.politifact.com/factchecks/list/?category=&ruling=pants-fire&speaker=joe-biden"
+    }
+  ]
+}
