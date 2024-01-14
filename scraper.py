@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import json
 from pymongo import MongoClient
 from bson import ObjectId
-
+import unicodedata
 
 def extract_context(soup):
     # Find the context element
@@ -41,14 +41,22 @@ def count_occurrences(text, keywords):
     occurrences = {keyword: text.lower().count(keyword) for keyword in keywords}
     return occurrences
 
-def determine_party_affiliation(occurrences):
-    # Determine party affiliation based on occurrences
-    if occurrences['democrat'] > occurrences['republican']:
-        return 'party_affiliation: democrat'
-    elif occurrences['republican'] > occurrences['democrat']:
-        return 'party_affiliation: republican'
-    else:
-        return 'party_affiliation: unknown'
+def normalize_string(input_str):
+    # Normalize the string by removing accents and converting to lowercase
+    return unicodedata.normalize('NFKD', input_str).encode('ascii', 'ignore').decode('utf-8').lower()
+
+def determine_party_affiliation(speaker, people_details):
+    # Check if the speaker is present in the people_details JSON
+    if people_details:
+        # Normalize both the extracted speaker's name and names in people_details for case-insensitive comparison
+        normalized_speaker = normalize_string(speaker)
+        speaker_info = next((person for person in people_details if normalize_string(person["name"]) == normalized_speaker), None)
+
+        # If speaker_info is found, return the party affiliation from the JSON
+        if speaker_info:
+            return speaker_info.get("party_affiliation", "Party affiliation not found.")
+
+    return 'party_affiliation: unknown'
 
 def extract_statement(soup):
     # Find the statement text
@@ -64,7 +72,7 @@ def extract_subject(soup):
     
     return subject_content
 
-def extract_information(url):
+def extract_information(url, people_details):
     # Send a GET request to the specified URL
     response = requests.get(url)
 
@@ -91,8 +99,11 @@ def extract_information(url):
 
                 # Check if the name tag is found
                 if speaker_tag:
-                    # Extract the name text
+                     # Extract the name text
                     speaker = speaker_tag.get_text(strip=True)
+
+                    # Determine party affiliation
+                    party_affiliation = determine_party_affiliation(speaker, people_details)
 
                     # Extract the 'href' attribute value
                     href_value = speaker_tag.get('href')
@@ -112,11 +123,11 @@ def extract_information(url):
                     text_states = extract_states_from_text(article_text, state_editions)
 
                     # Count occurrences of 'democrat' and 'republican'
-                    keywords = ['democrat', 'republican']
-                    occurrences = count_occurrences(article_text, keywords)
+                    #keywords = ['democrat', 'republican']
+                    #occurrences = count_occurrences(article_text, keywords)
 
                     # Determine party affiliation
-                    party_affiliation = determine_party_affiliation(occurrences)
+                    #party_affiliation = determine_party_affiliation(occurrences)
                     
                     # Extract context information using the new function
                     context = extract_context(soup)
@@ -124,16 +135,13 @@ def extract_information(url):
                     # Create a dictionary with the extracted information
                     extracted_info = {
                         "_id": ObjectId(),
-                        "id": href_value.split('/')[-2],  # Extracting the ID from the URL
                         "label": image_tag,
                         "statement": statement,
                         "subject": subjects,
                         "speaker": speaker,
                         "party_affiliation": party_affiliation,
-                        "text_states": text_states,
-                        "occurrences": occurrences,
-                        "context": context,
-                        # Add other fields as needed
+                        "state_info": text_states,
+                        "context": context
                     }
 
                     return extracted_info
@@ -147,13 +155,13 @@ def extract_information(url):
         print(f"Failed to retrieve content. Status code: {response.status_code}")
 
 
-# Load the JSON data
-#with open('people_details.json', 'r') as json_file:
-    #people_details = json.load(json_file)
+# Load the JSON data from new_people_details.json
+with open('new_people_details.json', 'r') as json_file:
+    people_details = json.load(json_file)
 
 # Example usage:
 url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/donald-trump/trumps-claim-that-millions-of-immigrants-are-signi/"
-result = extract_information(url_to_scrape)
+result = extract_information(url_to_scrape, people_details)
 
 if result:
     # Initialize a MongoDB client
@@ -168,5 +176,6 @@ if result:
 
     # Close the MongoDB client
     client.close()
+    print("Record added succesfully.")
 else:
     print("Failed to extract information.")
