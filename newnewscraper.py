@@ -59,8 +59,12 @@ def scrape_person_statements(person_url):
 
         # Find all <a> tags within <div> tags with class 'm-statement__quote'
         quote_as = soup.select('div.m-statement__quote a')
+        
+        # Extract context information
+        context_divs = soup.select('div.m-statement__desc')
+        contexts = [context.get_text(strip=True) for context in context_divs]
 
-        for quote_a in quote_as:
+        for quote_a, context in zip(quote_as, contexts):
             # Extract statement text
             statement_text = quote_a.get_text(strip=True)
 
@@ -69,7 +73,8 @@ def scrape_person_statements(person_url):
 
             statement_details = {
                 'text': statement_text,
-                'url': statement_url
+                'url': statement_url,
+                'context': context
             }
 
             statements.append(statement_details)
@@ -102,10 +107,10 @@ def scrape_person_statements(person_url):
         return None
 
 if __name__ == "__main__":
-    url_to_scrape = "https://www.politifact.com/personalities/"
+    url_to_scrape = "https://www.politifact.com/personalities/eric-adams/"
     output_file_path = "new_people_details.json"
 
-    details = scrape_people_details(url_to_scrape)
+    details = scrape_person_statements(url_to_scrape)
     if details:
         with open(output_file_path, 'w') as json_file:
             json.dump(details, json_file, indent=2)
