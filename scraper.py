@@ -164,7 +164,7 @@ def extract_information(url, people_details):
 with open('new_people_details.json', 'r') as json_file:
     people_details = json.load(json_file)
 
-# Example usage:
+""" # Example usage:
 url_to_scrape = "https://www.politifact.com/factchecks/2024/jan/12/donald-trump/trumps-claim-that-millions-of-immigrants-are-signi/"
 result = extract_information(url_to_scrape, people_details)
 
@@ -188,4 +188,4 @@ if result:
             collection.insert_one(result)
             print("Record added successfully.")
         else:
-            print("Failed to extract information.")
+            print("Failed to extract information.") """
